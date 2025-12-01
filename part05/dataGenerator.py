@@ -13,7 +13,7 @@ def escape_sql_string(value):
     return value
 
 
-def generate_courses(file, num_courses=50):
+def generate_courses(file, num_courses=100):
     for course_id in range(1, num_courses + 1):
         courseName = f"CourseName {course_id}"
         department = fake.random_element(elements=("CS", "Math", "Physics", "History"))
@@ -22,19 +22,19 @@ def generate_courses(file, num_courses=50):
         units = random.randint(0, 5)
 
         file.write(
-            f"INSERT INTO `Course` (`courseId`, `courseName`, `department`, `courseDescription`, `prerequisite`, `units`) VALUES (NULL, '{courseName}', '{department}', '{courseDescription}', '{prerequisite}', {units})\n"
+            f"INSERT INTO `Course` (`courseId`, `courseName`, `department`, `courseDescription`, `prerequisite`, `units`) VALUES (NULL, '{courseName}', '{department}', '{courseDescription}', '{prerequisite}', '{units}');\n"
         )
 
 def generate_course_material(file, num_course_material=100):
     for materialId in range(1, num_course_material + 1):
         materialDescription = fake.paragraph(nb_sentences=4, variable_nb_sentences=True)
-        isRequired = random.choice(["True", "False"])
+        isRequired = random.randint(0,1)
         msrp = fake.pricetag()[1:]
         materialName = fake.word()
 
         # for ints, remove back ticks or not (idk)
         file.write(
-            f"INSERT INTO `CourseMaterial` ( `materialID`, `dateAdded`, `materialDescription`, `isRequired`, `msrp`, `materialName`) VALUES (NULL, NULL, '{materialDescription}', '{isRequired}', '{msrp}', '{materialName}')\n"
+            f"INSERT INTO `CourseMaterial` ( `materialID`, `dateAdded`, `materialDescription`, `isRequired`, `msrp`, `materialName`) VALUES (NULL, NULL, '{materialDescription}', '{isRequired}', '{msrp}', '{materialName}');\n"
         )
 
 def generate_course_supplies(file):
@@ -46,7 +46,7 @@ def generate_course_supplies(file):
         itemWeight = random.randint(1, 30)
 
         file.write(
-            f"INSERT INTO `CourseSupplies` (`materialId`, `brand`, `height`, `width`, `itemLength`, `itemWeight`) VALUES ({materialId}, '{brand}', '{height}', '{width}', '{itemLength}', '{itemWeight}' )\n"
+            f"INSERT INTO `CourseSupplies` (`materialId`, `brand`, `height`, `width`, `itemLength`, `itemWeight`) VALUES ('{materialId}', '{brand}', '{height}', '{width}', '{itemLength}', '{itemWeight}' );\n"
         )
 
 
@@ -56,15 +56,15 @@ def generate_app_users(file, num_users=50):
         password_hash = fake.md5()
         first_name = fake.first_name()
         last_name = fake.last_name()
-        is_verified = random.choice(["True", "False"])
-        overallRating = round(random.uniform(0.00, 9.99), 2)
+        is_verified = random.randint(0,1)
+        overallRating = round(random.uniform(0, 10), 1)
         responseTimeMinutes = random.randint(1, 10080)  # One week in minutes
         returnPolicy = fake.paragraph(nb_sentences=7, variable_nb_sentences=True)
         sellerBio = fake.paragraph(nb_sentences=7, variable_nb_sentences=True)
         phoneNumber = fake.basic_phone_number()
 
         file.write(
-            f"INSERT INTO `AppUser` (`userId`, `email`, `passwordHash`, `firstName`, `lastName`, `isVerified`, `overallRating`, `responseTimeMinutes`, `returnPolicy`, `sellerBio`, `phoneNumber`, `dateJoined`) VALUES (NULL, '{email}', '{password_hash}', '{first_name}', '{last_name}', '{is_verified}', '{overallRating}', '{responseTimeMinutes}', '{returnPolicy}', '{sellerBio}', '{phoneNumber}', NULL )\n"
+            f"INSERT INTO `AppUser` (`userId`, `email`, `passwordHash`, `firstName`, `lastName`, `isVerified`, `overallRating`, `responseTimeMinutes`, `returnPolicy`, `sellerBio`, `phoneNumber`, `dateJoined`) VALUES (NULL, '{email}', '{password_hash}', '{first_name}', '{last_name}', '{is_verified}', '{overallRating}', '{responseTimeMinutes}', '{returnPolicy}', '{sellerBio}', '{phoneNumber}', NULL );\n"
         )
 
 def generate_listings(file, num_listing=50):
@@ -76,9 +76,9 @@ def generate_listings(file, num_listing=50):
         listPrice = round(fake.pyfloat(2, positive=True), 2)
         quantity = fake.pyint(1, 50)
         material_condition = fake.random_element(
-            elements=("new", "like new", "used", "refurbished")
+            elements=("New", "Like New", "Used", "Worn", "Well Worn")
         )
-        isActive = fake.boolean(chance_of_getting_true=80)
+        isActive = random.randint(0,1)
 
         file.write(
             f"INSERT INTO `Listing` (`listingId`, `userId`, `materialId`, `listingPrice`, `quantity`, `material_condition`, `isActive`, `datePosted`) VALUES (NULL, '{userId}', '{materialId}', '{listPrice}', '{quantity}', '{material_condition}', '{isActive}', NULL);\n"
@@ -122,7 +122,7 @@ def generate_publishers(file, num_publishers=50):
 
 
 def generate_textbook(file):
-    for materialId in range(51, 101):
+    for materialId in range(51, 101): # textbook ids are from 51-100
         ISBN = fake.isbn13(separator="-")
         title = fake.sentence(nb_words=4)
         textbookEdition = fake.random_int(min=1, max=10)
@@ -130,7 +130,7 @@ def generate_textbook(file):
         publicationYear = fake.year()
         numberOfPages = fake.random_int(min=50, max=1500)
         imageURL = fake.image_url()
-        publId = fake.unique.random_int(min=1, max=100)
+        publId = fake.unique.random_int(min=1, max=50)
 
         file.write(
             f"INSERT INTO `Textbook` (`materialId`, `ISBN`, `title`, `textbookEdition`, `textbookLanguage`, `publicationYear`, `numberOfPages`, `imageURL`, `publisherId`) VALUES ('{materialId}', '{ISBN}', '{title}', '{textbookEdition}', '{textbookLanguage}', '{publicationYear}', '{numberOfPages}', '{imageURL}', '{publId}');\n"
@@ -151,9 +151,10 @@ def generate_authors(file, num_authors=50):
 
 
 def generate_sections(file):
-    for courseId in range(1, 51):
-        sectionNumber = random.randint(1, 4)
-        semester = random.choice(["Spring", "Summer", "Fall", "Winter"])
+    for courseId in range(1, 101):
+        #commented out for fixes, made sectionNumber and semesters as constants
+        # sectionNumber = random.randint(1, 4)
+        # semester = random.choice(["Spring", "Summer", "Fall", "Winter"])
         capacity = random.choice([30, 45, 60, 120])
         delivery = random.choice(["In-Person", "Online", "Hybrid"])
         room = random.randint(100, 500)
@@ -162,40 +163,43 @@ def generate_sections(file):
         time_block = f"{days} {hour}:00-{hour+1}:00"
 
         file.write(
-            f"INSERT INTO `Section` (`courseId`, `sectionNumber`, `semester`, `capacity`, `deliveryMethod`, `roomNumber`, `timeBlock`) VALUES ({courseId}, {sectionNumber}, '{semester}', '{capacity}', '{delivery}', {room}, '{time_block}');\n"
+            f"INSERT INTO `Section` (`courseId`, `sectionNumber`, `semester`, `capacity`, `deliveryMethod`, `roomNumber`, `timeBlock`) VALUES ('{courseId}', '1', 'Spring', '{capacity}', '{delivery}', '{room}', '{time_block}');\n"
         )
 
 
 def generate_section_professors(file):
     for i in range(1, 51):
         course_id = i
-        semester = random.choice(["Spring", "Summer", "Fall", "Winter"])
-        sectionNumber = random.randint(1, 4)
+        #commented out for fixes, made sectionNumber and semesters as constants
+        # semester = random.choice(["Spring", "Summer", "Fall", "Winter"])
+        #sectionNumber = random.randint(1, 4)
         prof_id = i
         file.write(
-            f"INSERT INTO `SectionProfessor` (`courseId`, `sectionNumber`, `semester`, `profId`) VALUES ('{course_id}', '{sectionNumber}', '{semester}', {prof_id});\n"
+            f"INSERT INTO `SectionProfessor` (`courseId`, `sectionNumber`, `semester`, `profId`) VALUES ('{course_id}', '1', 'Spring', '{prof_id}');\n"
         )
 
 
 def generate_section_course_materials(file):
     for i in range(1, 101):
         course_id = i
-        semester = random.choice(["Spring", "Summer", "Fall", "Winter"])
-        sectionNumber = random.randint(1, 4)
+        #commented out for fixes, made sectionNumber and semesters as constants
+        # semester = random.choice(["Spring", "Summer", "Fall", "Winter"])
+        # sectionNumber = random.randint(1, 4)
         materialId = i
 
         file.write(
-            f"INSERT INTO `SectionCourseMaterial` (`courseId`, `sectionNumber`, `semester`, `materialId`) VALUES ({course_id}, {sectionNumber}, '{semester}', {materialId});\n"
+            f"INSERT INTO `SectionCourseMaterial` (`courseId`, `sectionNumber`, `semester`, `materialId`) VALUES ('{course_id}', '1', 'Spring', '{materialId}');\n"
         )
 
-
+        #made userId random ID between 1-50 to remain consistent with the many-one relationship.
 def generate_user_reviews(file):
     for userId in range(1, 51):
-        verified = random.choice([0, 1])
+        verified = random.randint(0, 1)
         description = escape_sql_string(fake.text(max_nb_chars=150))
+        uid = random.randint(1, 50)
 
         file.write(
-            f"INSERT INTO `UserReview` (`reviewId`, `datePosted`, `verifiedPurchase`, `reviewDescription`, `userId`) VALUES (NULL, NULL, {verified}, '{description}', {userId});\n"
+            f"INSERT INTO `UserReview` (`reviewId`, `datePosted`, `verifiedPurchase`, `reviewDescription`, `userId`) VALUES (NULL, NULL, '{verified}', '{description}', '{uid}');\n"
         )
 
 
@@ -205,7 +209,7 @@ def generate_written_by(file):
         material_id = i + 50
 
         file.write(
-            f"INSERT INTO `WrittenBy` (`materialId`, `authorId`) VALUES ({material_id}, {author_id});\n"
+            f"INSERT INTO `WrittenBy` (`materialId`, `authorId`) VALUES ('{material_id}', '{author_id}');\n"
         )
 
 
