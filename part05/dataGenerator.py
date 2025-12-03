@@ -205,7 +205,7 @@ def generate_user_reviews(file):
 
 def generate_written_by(file):
     for i in range(1, 51):
-        author_id = i
+        author_id = random.randint(1, 50)
         material_id = i + 50
 
         file.write(
