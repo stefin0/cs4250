@@ -1,0 +1,39 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/../db.php';
+?>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Course Material Relation</title>
+    </head>  
+    <body>
+        <h1>Course Material Relation</h1>
+        <table>
+            <?php
+                $sql = "SELECT * FROM CourseMaterial";
+                $stmt = $pdo->query($sql);
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                echo "<table border='1'><tr>";
+                foreach (array_keys($rows[0]) as $col) {
+                        echo "<th>" . htmlspecialchars($col) . "</th>";
+                }
+                echo "</tr>";
+
+                foreach ($rows as $row) {
+                        echo "<tr>";
+                        foreach ($row as $cell) {
+                                echo "<td>" . htmlspecialchars($cell) . "</td>";
+                        }
+                        echo "</tr>";
+                }
+                echo "</table>";
+                ?>
+        </table>
+    </body>
+</html>
